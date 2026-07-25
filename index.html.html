@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FITBRO // Rutina Mensual</title>
+<meta name="theme-color" content="#0B0B0C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0B0C;
+    --bg-elev:#141416;
+    --bg-cell:#18181B;
+    --bg-cell-hover:#1F1F23;
+    --line:#28282C;
+    --line-soft:#1D1D20;
+    --text:#F5F5F2;
+    --text-dim:#8C8C91;
+    --text-faint:#4E4E52;
+    --accent:#FF3D2E;
+    --accent-l1: rgba(255,61,46,0.14);
+    --accent-l2: rgba(255,61,46,0.30);
+    --accent-l3: rgba(255,61,46,0.55);
+    --accent-l4: #FF3D2E;
+    --good:#3DDC97;
+    --font-display:'Bebas Neue', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{ min-height:100vh; }
+
+  ::selection{ background:var(--accent); color:#0B0B0C; }
+  a, button, input, textarea{ font-family:inherit; color:inherit; }
+  button{ cursor:pointer; background:none; border:none; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .hidden{ display:none !important; }
+
+  /* ---------- TOPBAR ---------- */
+
+  .topbar{
+    position:sticky; top:0; z-index:5;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px;
+    background:rgba(11,11,12,0.88);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{ width:20px; height:22px; display:block; flex-shrink:0; }
+  .brand-word{
+    font-family:var(--font-display); font-size:21px; letter-spacing:0.05em;
+    text-transform:uppercase; line-height:1; padding-top:2px;
+  }
+  .profile-pill{
+    display:flex; align-items:center; gap:8px;
+    border:1px solid var(--line);
+    padding:5px 6px 5px 5px;
+  }
+  .profile-avatar{
+    width:24px; height:24px;
+    background:var(--accent);
+    color:#0B0B0C;
+    font-family:var(--font-mono); font-weight:700; font-size:11px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .profile-pill .pname{ font-size:12px; font-weight:600; }
+  .profile-pill .switch{
+    font-family:var(--font-mono); font-size:10px; color:var(--text-faint);
+    letter-spacing:0.05em; text-transform:uppercase;
+    border-left:1px solid var(--line); padding-left:8px;
+  }
+  .profile-pill .switch:hover{ color:var(--accent); }
+
+  /* ---------- AUTH SCREEN ---------- */
+
+  .auth-screen{
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:40px 20px;
+  }
+  .auth-box{ width:100%; max-width:380px; }
+  .auth-brand{ display:flex; align-items:center; gap:12px; justify-content:center; margin-bottom:34px; }
+  .auth-brand .brand-mark{ width:26px; height:29px; }
+  .auth-brand .brand-word{ font-size:30px; }
+
+  .auth-eyebrow{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--text-faint); text-align:center;
+    margin-bottom:8px;
+  }
+  .auth-title{
+    font-family:var(--font-display); font-size:34px; text-transform:uppercase;
+    text-align:center; margin-bottom:26px; letter-spacing:0.01em;
+  }
+
+  .profile-grid{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:22px; }
+  .profile-chip{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    width:84px; padding:12px 4px;
+    border:1px solid var(--line);
+    transition:border-color .15s, background .15s, transform .08s;
+  }
+  .profile-chip:hover{ border-color:var(--text-dim); background:var(--bg-cell); }
+  .profile-chip:active{ transform:scale(0.95); }
+  .profile-chip.active-select{ border-color:var(--accent); background:var(--accent-l1); }
+  .profile-chip .avatar-lg{
+    width:40px; height:40px;
+    background:var(--bg-cell);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:var(--font-mono); font-weight:700; font-size:15px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .profile-chip .cname{ font-size:12px; font-weight:600; text-align:center; word-break:break-word; }
+
+  .pin-area{ margin-top:6px; }
+  .pin-label{
+    font-family:var(--font-mono); font-size:11px; color:var(--text-dim);
+    text-align:center; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:14px;
+  }
+  .pin-dots{ display:flex; gap:12px; justify-content:center; margin-bottom:20px; }
+  .pin-dot{
+    width:14px; height:14px; border:1px solid var(--line-soft);
+    background:transparent;
+  }
+  .pin-dot.filled{ background:var(--accent); border-color:var(--accent); }
+
+  .keypad{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;
+    max-width:260px; margin:0 auto;
+  }
+  .keypad button{
+    height:56px;
+    border:1px solid var(--line);
+    font-family:var(--font-mono); font-size:18px; font-weight:600;
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s, background .15s, transform .08s;
+  }
+  .keypad button:hover{ border-color:var(--text-dim); }
+  .keypad button:active{ transform:scale(0.93); background:var(--bg-cell); }
+  .keypad button.kp-back{ color:var(--text-dim); font-size:13px; letter-spacing:0.05em; }
+
+  .auth-error{
+    text-align:center; color:var(--accent); font-family:var(--font-mono);
+    font-size:11px; letter-spacing:0.05em; margin-top:14px; min-height:16px;
+  }
+
+  .auth-divider{
+    display:flex; align-items:center; gap:12px; margin:26px 0;
+    color:var(--text-faint); font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em;
+  }
+  .auth-divider::before, .auth-divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+
+  .new-profile-btn{
+    width:100%; padding:16px; border:1px dashed var(--line);
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--text-dim);
+    transition:border-color .15s, color .15s;
+  }
+  .new-profile-btn:hover{ border-color:var(--accent); color:var(--text); }
+
+  .new-profile-form{ display:flex; flex-direction:column; gap:12px; }
+  .new-profile-form input{
+    width:100%; background:var(--bg-cell); border:1px solid var(--line);
+    color:var(--text); padding:14px; font-size:15px; letter-spacing:0.02em;
+  }
+  .new-profile-form input::placeholder{ color:var(--text-faint); }
+  .new-profile-form .row2{ display:flex; gap:10px; }
+  .new-profile-form .row2 input{ text-align:center; letter-spacing:0.3em; font-family:var(--font-mono); }
+  .new-profile-form .actions{ display:flex; gap:10px; margin-top:4px; }
+  .new-profile-form .actions button{
+    flex:1; padding:15px; min-height:50px;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    transition:transform .08s;
+  }
+  .new-profile-form .actions button:active{ transform:scale(0.97); }
+  .btn-primary{ background:var(--accent); color:#0B0B0C; font-weight:700; }
+  .btn-primary:hover{ background:#ff5847; }
+  .btn-ghost{ border:1px solid var(--line); color:var(--text-dim); }
+  .btn-ghost:hover{ border-color:var(--text-dim); color:var(--text); }
+
+  .security-note{
+    text-align:center; color:var(--text-faint); font-family:var(--font-mono);
+    font-size:10px; letter-spacing:0.03em; line-height:1.6; margin-top:30px;
+  }
+
+  /* ---------- APP LAYOUT ---------- */
+
+  .wrap{ max-width:920px; margin:0 auto; padding:30px 20px 100px; }
+
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.22em;
+    text-transform:uppercase; color:var(--text-faint);
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); }
+
+  .month-row{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    margin-top:8px; border-bottom:1px solid var(--line); padding-bottom:22px;
+  }
+  .month-title{
+    font-family:var(--font-display); font-size:clamp(48px, 11vw, 92px);
+    line-height:0.85; letter-spacing:0.01em; text-transform:uppercase;
+  }
+  .month-title .year{ color:var(--text-dim); }
+
+  .month-nav{ display:flex; gap:8px; padding-bottom:10px; }
+  .month-nav button{
+    width:44px; height:44px; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:16px; color:var(--text-dim);
+    transition:border-color .15s, color .15s, transform .1s;
+  }
+  .month-nav button svg{ width:16px; height:16px; }
+  .month-nav button:hover{ border-color:var(--accent); color:var(--text); }
+  .month-nav button:active{ transform:scale(0.92); }
+  .month-nav .today-btn{ width:auto; padding:0 16px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; }
+
+  .section-label{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--text-faint); margin:34px 0 14px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .section-label .count{ color:var(--text-dim); }
+
+  /* ---------- PROGRESS BAR ---------- */
+
+  .progress-track{
+    height:6px; background:var(--bg-cell); border:1px solid var(--line);
+    margin-bottom:20px; overflow:hidden;
+  }
+  .progress-fill{
+    height:100%; background:var(--accent); width:0%;
+    transition:width .3s ease;
+  }
+  .progress-fill.complete{ background:var(--good); }
+
+  /* ---------- GOALS ---------- */
+
+  .goals{ border-top:1px solid var(--line); }
+  .goal-row{ display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--line-soft); }
+  .goal-check{
+    width:24px; height:24px; flex-shrink:0;
+    border:1px solid var(--line-soft);
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s, background .15s;
+  }
+  .goal-check svg{ width:14px; height:14px; opacity:0; transition:opacity .15s; stroke:#0B0B0C; }
+  .goal-check.done{ background:var(--good); border-color:var(--good); }
+  .goal-check.done svg{ opacity:1; }
+  .goal-row .goal-text{ flex:1; font-size:16px; font-weight:500; line-height:1.4; }
+  .goal-row.done .goal-text{ color:var(--text-faint); text-decoration:line-through; }
+  .goal-row .goal-text[contenteditable="true"]:empty:before{ content:attr(data-placeholder); color:var(--text-faint); }
+  .goal-row .del{
+    color:var(--text-faint); font-family:var(--font-mono); font-size:14px; flex-shrink:0;
+    width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+    transition:color .15s;
+  }
+  .goal-row .del:hover, .goal-row .del:active{ color:var(--accent); }
+
+  .add-goal{ padding:14px 0; }
+  .add-goal button{
+    font-family:var(--font-mono); font-size:13px; letter-spacing:0.05em; color:var(--text-dim);
+    border:1px dashed var(--line); padding:12px 16px; width:100%; text-align:left;
+    transition:border-color .15s, color .15s;
+  }
+  .add-goal button:hover{ border-color:var(--accent); color:var(--text); }
+
+  /* ---------- LEGEND ---------- */
+
+  .legend{ display:flex; gap:22px; flex-wrap:wrap; margin-top:16px; }
+  .legend-item{ display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11px; color:var(--text-dim); letter-spacing:0.03em; }
+  .legend-chip{ width:14px; height:14px; border:1px solid var(--line); position:relative; overflow:hidden; }
+  .legend-chip .fill{ position:absolute; left:0; right:0; bottom:0; }
+
+  /* ---------- CALENDAR ---------- */
+
+  .weekdays{
+    display:grid; grid-template-columns:repeat(7, 1fr); margin-top:30px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; color:var(--text-faint); text-transform:uppercase;
+  }
+  .weekdays div{ padding:0 0 8px 2px; }
+
+  .grid{ display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; }
+
+  .cell{
+    position:relative; aspect-ratio:1/1; background:var(--bg-cell);
+    border:1px solid var(--line); padding:8px;
+    display:flex; flex-direction:column; justify-content:space-between; overflow:hidden;
+    transition:border-color .15s, background .15s, transform .08s;
+  }
+  .cell.pad{ background:transparent; border-color:transparent; }
+  .cell.clickable:hover{ border-color:var(--text-dim); background:var(--bg-cell-hover); }
+  .cell.clickable:active{ transform:scale(0.94); border-color:var(--accent); }
+  .cell.is-today{ border-color:var(--text); }
+  .cell .num{ font-family:var(--font-mono); font-size:13px; color:var(--text-dim); z-index:3; }
+  .cell.is-today .num{ color:var(--text); font-weight:700; }
+  .cell .check-badge{
+    position:absolute; top:6px; right:6px; z-index:3;
+    width:16px; height:16px; background:var(--good);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cell .check-badge svg{ width:10px; height:10px; stroke:#0B0B0C; }
+  .cell .task-count{ font-family:var(--font-mono); font-size:10px; color:var(--text-dim); z-index:3; }
+  .bar-planned{ position:absolute; left:0; right:0; bottom:0; background:var(--accent-l2); height:0%; transition:height .2s ease; z-index:1; }
+  .bar-done{ position:absolute; left:0; right:0; bottom:0; background:var(--accent-l4); height:0%; transition:height .2s ease; z-index:2; }
+
+  @media (hover:none){ .cell.clickable:hover{ border-color:var(--line); background:var(--bg-cell); } }
+
+  /* ---------- STATS ---------- */
+
+  .stats{ display:grid; grid-template-columns:repeat(4, 1fr); gap:1px; background:var(--line); margin-top:40px; border:1px solid var(--line); }
+  .stat{ background:var(--bg); padding:20px 14px; }
+  .stat .val{ font-family:var(--font-display); font-size:38px; line-height:1; color:var(--text); }
+  .stat .lbl{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-top:6px; }
+
+  /* ---------- DRAWER ---------- */
+
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.6); opacity:0; pointer-events:none; transition:opacity .18s ease; z-index:10; }
+  .overlay.open{ opacity:1; pointer-events:auto; }
+
+  .drawer{
+    position:fixed; left:0; right:0; bottom:0; max-width:920px; margin:0 auto;
+    background:var(--bg-elev); border-top:1px solid var(--line);
+    padding:26px 24px calc(30px + env(safe-area-inset-bottom));
+    max-height:88vh; overflow-y:auto;
+    transform:translateY(100%); transition:transform .22s ease; z-index:11;
+    box-shadow:0 -20px 50px -20px rgba(0,0,0,0.6);
+  }
+  .drawer.open{ transform:translateY(0); }
+
+  .drawer-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .drawer-head .d-title{ font-family:var(--font-display); font-size:34px; text-transform:uppercase; }
+  .drawer-head .d-close{ font-family:var(--font-mono); font-size:12px; color:var(--text-dim); letter-spacing:0.08em; text-transform:uppercase; }
+  .drawer-head .d-close:hover{ color:var(--text); }
+  .drawer-sub{ font-family:var(--font-mono); font-size:11px; color:var(--text-faint); letter-spacing:0.05em; margin-bottom:18px; }
+
+  .task-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+  .task-row{ display:flex; align-items:center; gap:12px; }
+  .task-check{
+    width:26px; height:26px; flex-shrink:0; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s, background .15s;
+  }
+  .task-check svg{ width:15px; height:15px; opacity:0; transition:opacity .15s; stroke:#0B0B0C; }
+  .task-check.done{ background:var(--good); border-color:var(--good); }
+  .task-check.done svg{ opacity:1; }
+  .task-text{ flex:1; font-size:15px; padding:6px 0; word-break:break-word; }
+  .task-row.done .task-text{ color:var(--text-faint); text-decoration:line-through; }
+  .task-del{
+    width:36px; height:36px; flex-shrink:0; color:var(--text-faint);
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+  }
+  .task-del:hover, .task-del:active{ color:var(--accent); }
+
+  .task-empty{ font-size:13px; color:var(--text-faint); padding:10px 0; }
+
+  .add-task-row{ display:flex; gap:8px; margin-top:4px; }
+  .add-task-row input{
+    flex:1; background:var(--bg-cell); border:1px solid var(--line);
+    color:var(--text); padding:14px; font-size:15px;
+  }
+  .add-task-row input::placeholder{ color:var(--text-faint); }
+  .add-task-row button{
+    width:50px; flex-shrink:0; background:var(--accent); color:#0B0B0C;
+    font-size:20px; font-weight:700;
+  }
+  .add-task-row button:hover{ background:#ff5847; }
+
+  .drawer-actions{ display:flex; gap:10px; margin-top:22px; }
+  .drawer-actions button{
+    flex:1; padding:16px; min-height:50px;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    transition:transform .08s, background .15s, border-color .15s, color .15s;
+  }
+  .drawer-actions button:active{ transform:scale(0.97); }
+  .btn-clear{ border:1px solid var(--line); color:var(--text-dim); }
+  .btn-clear:hover{ border-color:var(--accent); color:var(--text); }
+
+  /* ---------- TOAST ---------- */
+
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translate(-50%, 12px);
+    background:var(--text); color:#0B0B0C; font-family:var(--font-mono); font-size:11px;
+    letter-spacing:0.06em; text-transform:uppercase; padding:12px 18px;
+    display:flex; align-items:center; gap:8px;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+    z-index:20;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%, 0); }
+  .toast svg{ width:13px; height:13px; stroke:#0B0B0C; }
+
+  footer{
+    max-width:920px; margin:50px auto 0; padding:20px;
+    font-family:var(--font-mono); font-size:10px; color:var(--text-faint);
+    letter-spacing:0.05em; border-top:1px solid var(--line);
+  }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+
+  @media (max-width:520px){
+    .wrap{ padding:22px 14px 100px; }
+    .topbar{ padding:12px 14px; }
+    .cell{ padding:6px; }
+    .grid{ gap:4px; }
+    .stats{ grid-template-columns:repeat(2, 1fr); margin-top:30px; }
+    .month-title{ font-size:46px; }
+    .month-row{ padding-bottom:16px; }
+    .legend{ gap:14px 18px; }
+    .goal-row .goal-text{ font-size:15px; }
+    .profile-pill .pname{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <div class="auth-brand">
+      <svg class="brand-mark" viewBox="0 0 140 150" aria-hidden="true">
+        <rect x="6"  y="70" width="17" height="40" fill="#F5F5F2"/>
+        <rect x="35" y="42" width="17" height="68" fill="#F5F5F2"/>
+        <rect x="64" y="14" width="17" height="96" fill="#FF3D2E"/>
+      </svg>
+      <span class="brand-word">FITBRO</span>
+    </div>
+
+    <div id="pickView">
+      <div class="auth-eyebrow">Bienvenido de vuelta</div>
+      <div class="auth-title">ELIGE TU PERFIL</div>
+      <div class="profile-grid" id="profileGrid"></div>
+
+      <div class="auth-divider">O</div>
+      <button class="new-profile-btn" id="showCreateBtn">+ CREAR PERFIL NUEVO</button>
+    </div>
+
+    <div id="pinView" class="hidden">
+      <div class="auth-eyebrow" id="pinEyebrow">Ingresa tu pin</div>
+      <div class="auth-title" id="pinName">—</div>
+      <div class="pin-dots" id="pinDots"></div>
+      <div class="keypad" id="pinKeypad"></div>
+      <div class="auth-error" id="pinError"></div>
+      <div class="auth-divider">·</div>
+      <button class="new-profile-btn" id="backToPickBtn">‹ VOLVER A PERFILES</button>
+    </div>
+
+    <div id="createView" class="hidden">
+      <div class="auth-eyebrow">Perfil nuevo</div>
+      <div class="auth-title">CREA TU CUENTA</div>
+      <form class="new-profile-form" id="createForm">
+        <input type="text" id="newName" placeholder="Tu nombre" maxlength="20" autocomplete="off" required>
+        <div class="row2">
+          <input type="password" inputmode="numeric" pattern="[0-9]*" id="newPin" placeholder="PIN (4 dígitos)" maxlength="4" required>
+          <input type="password" inputmode="numeric" pattern="[0-9]*" id="newPin2" placeholder="Repetir PIN" maxlength="4" required>
+        </div>
+        <div class="auth-error" id="createError"></div>
+        <div class="actions">
+          <button type="button" class="btn-ghost" id="cancelCreateBtn">Cancelar</button>
+          <button type="submit" class="btn-primary">Crear perfil</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="security-note">Esto no es un sistema de seguridad bancaria — el PIN solo separa perfiles en este mismo dispositivo/enlace.</div>
+  </div>
+</div>
+
+<!-- ============ APP SCREEN ============ -->
+<div id="appScreen" class="hidden">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 140 150" aria-hidden="true">
+        <rect x="6"  y="70" width="17" height="40" fill="#F5F5F2"/>
+        <rect x="35" y="42" width="17" height="68" fill="#F5F5F2"/>
+        <rect x="64" y="14" width="17" height="96" fill="#FF3D2E"/>
+      </svg>
+      <span class="brand-word">FITBRO</span>
+    </div>
+    <div class="profile-pill">
+      <div class="profile-avatar" id="topAvatar">—</div>
+      <span class="pname" id="topName">—</span>
+      <button class="switch" id="switchProfileBtn">Cambiar</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <div class="eyebrow"><span class="dot"></span> PLANIFICADOR DE ENTRENAMIENTO</div>
+
+    <div class="month-row">
+      <div class="month-title"><span id="monthName">JULIO</span> <span class="year" id="yearName">2026</span></div>
+      <div class="month-nav">
+        <button id="prevBtn" aria-label="Mes anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button id="todayBtn" class="today-btn">HOY</button>
+        <button id="nextBtn" aria-label="Mes siguiente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="section-label">Objetivos principales <span class="count" id="goalsCount">0/0</span></div>
+    <div class="progress-track"><div class="progress-fill" id="goalsProgress"></div></div>
+    <div class="goals" id="goalsList"></div>
+    <div class="add-goal"><button id="addGoalBtn">+ AÑADIR OBJETIVO</button></div>
+
+    <div class="section-label">Calendario · tareas del mes <span class="count" id="tasksCount">0/0</span></div>
+    <div class="progress-track"><div class="progress-fill" id="tasksProgress"></div></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-chip"></div> Sin plan</div>
+      <div class="legend-item"><div class="legend-chip"><div class="fill" style="position:absolute;inset:0;background:var(--accent-l2)"></div></div> Planificado</div>
+      <div class="legend-item"><div class="legend-chip"><div class="fill" style="position:absolute;inset:0;background:var(--accent-l4)"></div></div> Completado</div>
+    </div>
+
+    <div class="weekdays">
+      <div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div>
+    </div>
+    <div class="grid" id="calendarGrid"></div>
+
+    <div class="stats">
+      <div class="stat"><div class="val" id="statDays">0</div><div class="lbl">Días con actividad</div></div>
+      <div class="stat"><div class="val" id="statDone">0</div><div class="lbl">Tareas completadas</div></div>
+      <div class="stat"><div class="val" id="statPending">0</div><div class="lbl">Tareas pendientes</div></div>
+      <div class="stat"><div class="val" id="statPct">0%</div><div class="lbl">Cumplimiento del mes</div></div>
+    </div>
+
+    <footer>FITBRO — planificador mensual. toca un día para gestionar sus tareas.</footer>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="d-title" id="drawerTitle">DÍA 1</div>
+    <button class="d-close" id="drawerClose">Cerrar ✕</button>
+  </div>
+  <div class="drawer-sub" id="drawerSub">0 de 0 tareas completadas</div>
+  <div class="progress-track"><div class="progress-fill" id="dayProgress"></div></div>
+
+  <div class="task-list" id="taskList"></div>
+
+  <form class="add-task-row" id="addTaskForm">
+    <input type="text" id="newTaskInput" placeholder="Ej: 4x10 sentadillas con barra" maxlength="80" autocomplete="off">
+    <button type="submit" aria-label="Añadir tarea">+</button>
+  </form>
+
+  <div class="drawer-actions">
+    <button class="btn-clear" id="clearBtn">Vaciar día</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Progreso guardado</span>
+</div>
+
+<script>
+(function(){
+  const MESES = ["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
+
+  const today = new Date();
+  let viewYear = today.getFullYear();
+  let viewMonth = today.getMonth();
+
+  let profiles = [];
+  let currentProfile = null; // {id, name, pin}
+  let selectedForPin = null;
+  let pinBuffer = '';
+
+  let goals = [];
+  let plan = {}; // { "1": {tasks:[{id,text,done}]}, ... }
+  let selectedDay = null;
+
+  const el = (id) => document.getElementById(id);
+
+  function genId(){ return Math.random().toString(36).slice(2,10); }
+  function initials(name){
+    return name.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  }
+  function escapeHtml(str){
+    const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+  }
+
+  let toastTimer = null;
+  function showToast(msg){
+    el('toastMsg').textContent = msg || 'Progreso guardado';
+    const t = el('toast');
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+  }
+
+  /* ================= STORAGE ================= */
+
+  async function loadProfiles(){
+    try{
+      const res = await window.storage.get('fitbro:profiles', true);
+      profiles = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){ profiles = []; }
+  }
+  async function saveProfiles(){
+    try{ await window.storage.set('fitbro:profiles', JSON.stringify(profiles), true); }
+    catch(e){ console.error('No se pudieron guardar los perfiles', e); }
+  }
+
+  async function loadGoals(){
+    goals = [];
+    try{
+      const res = await window.storage.get('fitbro:goals:' + currentProfile.id, true);
+      if(res && res.value){ goals = JSON.parse(res.value); }
+    }catch(e){ /* sin objetivos aún */ }
+    renderGoals();
+  }
+  async function saveGoals(silent){
+    try{
+      await window.storage.set('fitbro:goals:' + currentProfile.id, JSON.stringify(goals), true);
+      if(!silent) showToast('Objetivos guardados');
+    }catch(e){ console.error('No se pudieron guardar los objetivos', e); }
+  }
+
+  function monthKey(y,m){ return y + "-" + String(m+1).padStart(2,'0'); }
+
+  async function loadMonth(){
+    plan = {};
+    try{
+      const res = await window.storage.get('fitbro:plan:' + currentProfile.id + ':' + monthKey(viewYear, viewMonth), true);
+      if(res && res.value){ plan = JSON.parse(res.value); }
+    }catch(e){ /* sin plan aún para este mes */ }
+    renderCalendar();
+  }
+  async function saveMonth(){
+    try{
+      await window.storage.set('fitbro:plan:' + currentProfile.id + ':' + monthKey(viewYear, viewMonth), JSON.stringify(plan), true);
+      showToast('Progreso guardado');
+    }catch(e){ console.error('No se pudo guardar el plan', e); }
+  }
+
+  /* ================= AUTH ================= */
+
+  function renderProfileGrid(){
+    const grid = el('profileGrid');
+    grid.innerHTML = '';
+    if(profiles.length === 0){
+      grid.innerHTML = '<div style="color:var(--text-faint); font-size:13px; text-align:center; width:100%;">Todavía no hay perfiles en este dispositivo.</div>';
+      return;
+    }
+    profiles.forEach(p => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'profile-chip';
+      chip.innerHTML = `<div class="avatar-lg">${escapeHtml(initials(p.name))}</div><div class="cname">${escapeHtml(p.name)}</div>`;
+      chip.addEventListener('click', () => openPinView(p));
+      grid.appendChild(chip);
+    });
+  }
+
+  function openPinView(profile){
+    selectedForPin = profile;
+    pinBuffer = '';
+    el('pinName').textContent = profile.name.toUpperCase();
+    el('pinError').textContent = '';
+    renderPinDots();
+    el('pickView').classList.add('hidden');
+    el('createView').classList.add('hidden');
+    el('pinView').classList.remove('hidden');
+  }
+
+  function renderPinDots(){
+    const dots = el('pinDots');
+    dots.innerHTML = '';
+    for(let i=0;i<4;i++){
+      const d = document.createElement('div');
+      d.className = 'pin-dot' + (i < pinBuffer.length ? ' filled' : '');
+      dots.appendChild(d);
+    }
+  }
+
+  function buildKeypad(){
+    const kp = el('pinKeypad');
+    kp.innerHTML = '';
+    const keys = ['1','2','3','4','5','6','7','8','9','','0','back'];
+    keys.forEach(k => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      if(k === ''){ btn.style.visibility = 'hidden'; btn.disabled = true; }
+      else if(k === 'back'){ btn.className = 'kp-back'; btn.textContent = 'BORRAR'; }
+      else { btn.textContent = k; }
+      btn.addEventListener('click', () => handleKey(k));
+      kp.appendChild(btn);
+    });
+  }
+
+  function handleKey(k){
+    if(k === '' ) return;
+    if(k === 'back'){ pinBuffer = pinBuffer.slice(0,-1); renderPinDots(); return; }
+    if(pinBuffer.length >= 4) return;
+    pinBuffer += k;
+    renderPinDots();
+    if(pinBuffer.length === 4){
+      setTimeout(() => checkPin(), 120);
+    }
+  }
+
+  function checkPin(){
+    if(pinBuffer === selectedForPin.pin){
+      currentProfile = selectedForPin;
+      enterApp();
+    } else {
+      el('pinError').textContent = 'PIN incorrecto. Inténtalo de nuevo.';
+      pinBuffer = '';
+      renderPinDots();
+    }
+  }
+
+  el('backToPickBtn').addEventListener('click', () => {
+    el('pinView').classList.add('hidden');
+    el('pickView').classList.remove('hidden');
+  });
+
+  el('showCreateBtn').addEventListener('click', () => {
+    el('pickView').classList.add('hidden');
+    el('createView').classList.remove('hidden');
+    el('createError').textContent = '';
+    el('createForm').reset();
+  });
+  el('cancelCreateBtn').addEventListener('click', () => {
+    el('createView').classList.add('hidden');
+    el('pickView').classList.remove('hidden');
+  });
+
+  el('createForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = el('newName').value.trim();
+    const pin = el('newPin').value.trim();
+    const pin2 = el('newPin2').value.trim();
+    const err = el('createError');
+    if(!name){ err.textContent = 'Escribe un nombre.'; return; }
+    if(!/^[0-9]{4}$/.test(pin)){ err.textContent = 'El PIN debe tener 4 dígitos.'; return; }
+    if(pin !== pin2){ err.textContent = 'Los PIN no coinciden.'; return; }
+    if(profiles.some(p => p.name.toLowerCase() === name.toLowerCase())){ err.textContent = 'Ya existe un perfil con ese nombre.'; return; }
+
+    const newProfile = { id: genId(), name, pin };
+    profiles.push(newProfile);
+    await saveProfiles();
+    currentProfile = newProfile;
+    enterApp();
+  });
+
+  function enterApp(){
+    el('authScreen').classList.add('hidden');
+    el('appScreen').classList.remove('hidden');
+    el('topAvatar').textContent = initials(currentProfile.name);
+    el('topName').textContent = currentProfile.name;
+    viewYear = today.getFullYear(); viewMonth = today.getMonth();
+    loadGoals();
+    loadMonth();
+  }
+
+  el('switchProfileBtn').addEventListener('click', () => {
+    currentProfile = null;
+    el('appScreen').classList.add('hidden');
+    el('authScreen').classList.remove('hidden');
+    el('pinView').classList.add('hidden');
+    el('createView').classList.add('hidden');
+    el('pickView').classList.remove('hidden');
+    renderProfileGrid();
+  });
+
+  /* ================= GOALS ================= */
+
+  function renderGoals(){
+    const list = el('goalsList');
+    list.innerHTML = '';
+    goals.forEach((g, i) => {
+      const row = document.createElement('div');
+      row.className = 'goal-row' + (g.done ? ' done' : '');
+      row.innerHTML = `
+        <button class="goal-check ${g.done ? 'done' : ''}" aria-label="Marcar objetivo como cumplido">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="goal-text" contenteditable="true" data-placeholder="Escribe un objetivo…">${escapeHtml(g.text || '')}</div>
+        <button class="del" aria-label="Eliminar objetivo">✕</button>
+      `;
+      row.querySelector('.goal-check').addEventListener('click', () => {
+        goals[i].done = !goals[i].done;
+        renderGoals();
+        saveGoals(true);
+      });
+      const textEl = row.querySelector('.goal-text');
+      textEl.addEventListener('blur', () => {
+        goals[i].text = textEl.textContent.trim();
+        saveGoals();
+      });
+      row.querySelector('.del').addEventListener('click', () => {
+        goals.splice(i,1);
+        renderGoals();
+        saveGoals();
+      });
+      list.appendChild(row);
+    });
+    const doneCount = goals.filter(g => g.done).length;
+    el('goalsCount').textContent = doneCount + '/' + goals.length;
+    const pct = goals.length ? Math.round((doneCount/goals.length)*100) : 0;
+    const fillEl = el('goalsProgress');
+    fillEl.style.width = pct + '%';
+    fillEl.classList.toggle('complete', pct === 100 && goals.length > 0);
+  }
+
+  el('addGoalBtn').addEventListener('click', () => {
+    goals.push({ text:'', done:false });
+    renderGoals();
+    const rows = document.querySelectorAll('.goal-text');
+    if(rows.length){ rows[rows.length-1].focus(); }
+    saveGoals(true);
+  });
+
+  /* ================= CALENDAR ================= */
+
+  function dayStats(entry){
+    const tasks = (entry && entry.tasks) ? entry.tasks : [];
+    const total = tasks.length;
+    const done = tasks.filter(t => t.done).length;
+    return { total, done };
+  }
+
+  function renderCalendar(){
+    el('monthName').textContent = MESES[viewMonth];
+    el('yearName').textContent = viewYear;
+    const gridEl = el('calendarGrid');
+    gridEl.innerHTML = '';
+
+    const firstOfMonth = new Date(viewYear, viewMonth, 1);
+    let startOffset = firstOfMonth.getDay() - 1;
+    if(startOffset < 0) startOffset = 6;
+    const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+
+    for(let i=0; i<startOffset; i++){
+      const pad = document.createElement('div');
+      pad.className = 'cell pad';
+      gridEl.appendChild(pad);
+    }
+
+    for(let day=1; day<=daysInMonth; day++){
+      const entry = plan[day];
+      const { total, done } = dayStats(entry);
+      const isToday = (viewYear === today.getFullYear() && viewMonth === today.getMonth() && day === today.getDate());
+
+      const cell = document.createElement('div');
+      cell.className = 'cell clickable' + (isToday ? ' is-today' : '');
+
+      const plannedHeight = total > 0 ? Math.min(total/5, 1)*100 : 0;
+      const doneHeight = total > 0 ? plannedHeight * (done/total) : 0;
+      const complete = total > 0 && done === total;
+
+      cell.innerHTML = `
+        <div class="num">${String(day).padStart(2,'0')}</div>
+        ${complete ? '<div class="check-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
+        <div class="task-count">${total ? done + '/' + total : ''}</div>
+        <div class="bar-planned" style="height:${plannedHeight}%"></div>
+        <div class="bar-done" style="height:${doneHeight}%"></div>
+      `;
+      cell.addEventListener('click', () => openDrawer(day));
+      gridEl.appendChild(cell);
+    }
+
+    renderStats();
+  }
+
+  function renderStats(){
+    let daysActive=0, tasksDone=0, tasksTotal=0;
+    Object.keys(plan).forEach(k => {
+      const { total, done } = dayStats(plan[k]);
+      if(total > 0){ daysActive++; tasksTotal += total; tasksDone += done; }
+    });
+    el('statDays').textContent = daysActive;
+    el('statDone').textContent = tasksDone;
+    el('statPending').textContent = tasksTotal - tasksDone;
+    const pct = tasksTotal ? Math.round((tasksDone/tasksTotal)*100) : 0;
+    el('statPct').textContent = pct + '%';
+    el('tasksCount').textContent = tasksDone + '/' + tasksTotal;
+    const fillEl = el('tasksProgress');
+    fillEl.style.width = pct + '%';
+    fillEl.classList.toggle('complete', pct === 100 && tasksTotal > 0);
+  }
+
+  /* ================= DRAWER / TASKS ================= */
+
+  function openDrawer(day){
+    selectedDay = day;
+    if(!plan[day]) plan[day] = { tasks: [] };
+    el('drawerTitle').textContent = 'DÍA ' + String(day).padStart(2,'0');
+    renderTaskList();
+    el('overlay').classList.add('open');
+    el('drawer').classList.add('open');
+    setTimeout(() => el('newTaskInput').focus(), 200);
+  }
+
+  function closeDrawer(){
+    el('overlay').classList.remove('open');
+    el('drawer').classList.remove('open');
+    selectedDay = null;
+    el('newTaskInput').value = '';
+  }
+
+  function renderTaskList(){
+    const entry = plan[selectedDay] || { tasks: [] };
+    const tasks = entry.tasks;
+    const list = el('taskList');
+    list.innerHTML = '';
+    if(tasks.length === 0){
+      list.innerHTML = '<div class="task-empty">Sin tareas todavía. Añade la primera abajo.</div>';
+    }
+    tasks.forEach((t) => {
+      const row = document.createElement('div');
+      row.className = 'task-row' + (t.done ? ' done' : '');
+      row.innerHTML = `
+        <button class="task-check ${t.done ? 'done' : ''}" aria-label="Marcar tarea como hecha">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="task-text">${escapeHtml(t.text)}</div>
+        <button class="task-del" aria-label="Eliminar tarea">✕</button>
+      `;
+      row.querySelector('.task-check').addEventListener('click', async () => {
+        t.done = !t.done;
+        renderTaskList();
+        renderCalendar();
+        await saveMonth();
+      });
+      row.querySelector('.task-del').addEventListener('click', async () => {
+        entry.tasks = entry.tasks.filter(x => x.id !== t.id);
+        renderTaskList();
+        renderCalendar();
+        await saveMonth();
+      });
+      list.appendChild(row);
+    });
+
+    const total = tasks.length;
+    const done = tasks.filter(t => t.done).length;
+    el('drawerSub').textContent = done + ' de ' + total + ' tareas completadas';
+    const pct = total ? Math.round((done/total)*100) : 0;
+    const fillEl = el('dayProgress');
+    fillEl.style.width = pct + '%';
+    fillEl.classList.toggle('complete', pct === 100 && total > 0);
+  }
+
+  el('addTaskForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = el('newTaskInput');
+    const text = input.value.trim();
+    if(!text || selectedDay === null) return;
+    plan[selectedDay].tasks.push({ id: genId(), text, done:false });
+    input.value = '';
+    renderTaskList();
+    renderCalendar();
+    await saveMonth();
+    input.focus();
+  });
+
+  el('clearBtn').addEventListener('click', async () => {
+    if(selectedDay === null) return;
+    plan[selectedDay] = { tasks: [] };
+    renderTaskList();
+    renderCalendar();
+    await saveMonth();
+  });
+
+  el('drawerClose').addEventListener('click', closeDrawer);
+  el('overlay').addEventListener('click', closeDrawer);
+
+  el('prevBtn').addEventListener('click', () => { viewMonth--; if(viewMonth<0){viewMonth=11; viewYear--;} loadMonth(); });
+  el('nextBtn').addEventListener('click', () => { viewMonth++; if(viewMonth>11){viewMonth=0; viewYear++;} loadMonth(); });
+  el('todayBtn').addEventListener('click', () => { viewYear = today.getFullYear(); viewMonth = today.getMonth(); loadMonth(); });
+
+  /* ================= INIT ================= */
+
+  buildKeypad();
+  (async function init(){
+    await loadProfiles();
+    renderProfileGrid();
+  })();
+})();
+</script>
+
+</body>
+</html>
