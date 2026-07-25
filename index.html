@@ -200,6 +200,56 @@
 
   @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
 
+  /* ---------- MACROS ---------- */
+  .macro-form{
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;
+    border:1px solid var(--line); padding:16px; background:var(--bg-cell);
+  }
+  .macro-field{ display:flex; flex-direction:column; gap:6px; }
+  .macro-field label{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); }
+  .macro-field input, .macro-field select{
+    background:var(--bg-elev); border:1px solid var(--line); color:var(--text);
+    padding:12px; font-size:14px; width:100%;
+  }
+  .macro-field.full{ grid-column:1 / -1; }
+  .macro-submit{
+    grid-column:1 / -1; margin-top:4px; padding:15px; min-height:48px;
+    background:var(--accent); color:#0B0B0C; font-weight:700;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    transition:background .15s, transform .08s;
+  }
+  .macro-submit:hover{ background:#ff5847; }
+  .macro-submit:active{ transform:scale(0.98); }
+
+  .macro-results{ display:none; margin-top:18px; }
+  .macro-results.show{ display:block; }
+  .macro-cal{
+    text-align:center; padding:22px 10px; border:1px solid var(--line); margin-bottom:10px;
+  }
+  .macro-cal .val{ font-family:var(--font-display); font-size:56px; line-height:1; }
+  .macro-cal .lbl{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-faint); margin-top:6px; }
+  .macro-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
+  .macro-box{ background:var(--bg); padding:16px 10px; text-align:center; }
+  .macro-box .val{ font-family:var(--font-display); font-size:28px; line-height:1; }
+  .macro-box .lbl{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-top:4px; }
+  .macro-box.protein .val{ color:var(--accent); }
+  .macro-box.carbs .val{ color:#F5C24D; }
+  .macro-box.fat .val{ color:#6FB3FF; }
+
+  .plan-week{ display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+  .plan-day{ display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); padding:12px 14px; background:var(--bg-cell); }
+  .plan-day .pd-num{ font-family:var(--font-display); font-size:26px; color:var(--text-dim); flex-shrink:0; width:34px; }
+  .plan-day .pd-text{ font-size:14px; line-height:1.4; padding-top:4px; }
+  .plan-add-btn{
+    width:100%; margin-top:16px; padding:16px; min-height:50px;
+    background:var(--accent); color:#0B0B0C; font-weight:700;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    transition:background .15s, transform .08s;
+  }
+  .plan-add-btn:hover{ background:#ff5847; }
+  .plan-add-btn:active{ transform:scale(0.98); }
+  .plan-add-btn:disabled{ opacity:0.5; }
+
   @media (max-width:520px){
     .wrap{ padding:22px 14px 100px; }
     .topbar{ padding:12px 14px; }
@@ -210,6 +260,8 @@
     .month-row{ padding-bottom:16px; }
     .legend{ gap:14px 18px; }
     .goal-row .goal-text{ font-size:15px; }
+    .macro-form{ grid-template-columns:1fr; }
+    .macro-cal .val{ font-size:44px; }
   }
 </style>
 </head>
@@ -306,6 +358,52 @@
     <div class="progress-track"><div class="progress-fill" id="goalsProgress"></div></div>
     <div class="goals" id="goalsList"></div>
     <div class="add-goal"><button id="addGoalBtn">+ AÑADIR OBJETIVO</button></div>
+
+    <div class="section-label">Tus macros</div>
+    <form class="macro-form" id="macroForm">
+      <div class="macro-field"><label>Peso (kg)</label><input type="number" id="mWeight" min="30" max="300" step="0.1" required></div>
+      <div class="macro-field"><label>Estatura (cm)</label><input type="number" id="mHeight" min="100" max="250" step="0.1" required></div>
+      <div class="macro-field"><label>Edad</label><input type="number" id="mAge" min="10" max="100" required></div>
+      <div class="macro-field">
+        <label>Sexo</label>
+        <select id="mSex" required>
+          <option value="hombre">Hombre</option>
+          <option value="mujer">Mujer</option>
+        </select>
+      </div>
+      <div class="macro-field full">
+        <label>Nivel de actividad</label>
+        <select id="mActivity" required>
+          <option value="sedentario">Sedentario (poco o nada de ejercicio)</option>
+          <option value="ligero">Ligero (1-3 días/semana)</option>
+          <option value="moderado">Moderado (3-5 días/semana)</option>
+          <option value="activo">Activo (6-7 días/semana)</option>
+          <option value="muy_activo">Muy activo (entreno intenso a diario)</option>
+        </select>
+      </div>
+      <div class="macro-field full">
+        <label>Tu objetivo</label>
+        <select id="mGoal" required>
+          <option value="perder">Perder peso / grasa</option>
+          <option value="mantener">Mantener / tonificar</option>
+          <option value="ganar">Ganar músculo</option>
+        </select>
+      </div>
+      <button type="submit" class="macro-submit">Calcular y guardar</button>
+    </form>
+
+    <div class="macro-results" id="macroResults">
+      <div class="macro-cal"><div class="val" id="macroCalories">0</div><div class="lbl">Calorías objetivo / día</div></div>
+      <div class="macro-grid">
+        <div class="macro-box protein"><div class="val" id="macroProtein">0g</div><div class="lbl">Proteína</div></div>
+        <div class="macro-box carbs"><div class="val" id="macroCarbs">0g</div><div class="lbl">Carbohidratos</div></div>
+        <div class="macro-box fat"><div class="val" id="macroFat">0g</div><div class="lbl">Grasas</div></div>
+      </div>
+
+      <div class="section-label" style="margin-top:34px;">Plan de entrenamiento sugerido</div>
+      <div class="plan-week" id="planWeek"></div>
+      <button class="plan-add-btn" id="planAddBtn">+ AÑADIR ESTE PLAN A MI CALENDARIO (PRÓXIMOS 7 DÍAS)</button>
+    </div>
 
     <div class="section-label">Calendario · tareas del mes <span class="count" id="tasksCount">0/0</span></div>
     <div class="progress-track"><div class="progress-fill" id="tasksProgress"></div></div>
@@ -467,6 +565,7 @@
     viewYear = today.getFullYear(); viewMonth = today.getMonth();
     loadGoals();
     loadMonth();
+    loadBodyMetrics();
   }
 
   /* ================= GOALS ================= */
@@ -703,6 +802,123 @@
   el('prevBtn').addEventListener('click', () => { viewMonth--; if(viewMonth<0){viewMonth=11; viewYear--;} loadMonth(); });
   el('nextBtn').addEventListener('click', () => { viewMonth++; if(viewMonth>11){viewMonth=0; viewYear++;} loadMonth(); });
   el('todayBtn').addEventListener('click', () => { viewYear = today.getFullYear(); viewMonth = today.getMonth(); loadMonth(); });
+
+  /* ================= MACROS & PLAN ================= */
+
+  const ACTIVITY_MULT = { sedentario:1.2, ligero:1.375, moderado:1.55, activo:1.725, muy_activo:1.9 };
+  const GOAL_ADJUST = { perder:-0.20, mantener:0, ganar:0.12 };
+
+  const PLAN_TEMPLATES = {
+    perder: [
+      'Full body fuerza: sentadilla, press banca, remo con mancuerna, plancha 3x40s',
+      'Cardio 30 min ritmo moderado (bici o caminata rápida)',
+      'Full body fuerza: peso muerto, press militar, jalón al pecho, elevaciones laterales',
+      'Descanso activo: 20 min de estiramientos',
+      'Full body fuerza + HIIT 15 min al final',
+      'Cardio ligero 25 min',
+      'Descanso'
+    ],
+    ganar: [
+      'Empuje: press banca, press militar, fondos, extensión de tríceps',
+      'Tirón: dominadas, remo con barra, curl de bíceps, face pull',
+      'Pierna: sentadilla, peso muerto rumano, prensa, gemelos',
+      'Descanso',
+      'Empuje: press inclinado, press de hombro con mancuerna, tríceps en polea',
+      'Tirón: remo en máquina, jalón al pecho, curl martillo',
+      'Pierna: zancadas, hip thrust, curl femoral'
+    ],
+    mantener: [
+      'Full body: sentadilla, press banca, remo, plancha',
+      'Cardio moderado 25 min',
+      'Full body: peso muerto, press de hombro, jalón, core',
+      'Descanso',
+      'Full body: zancadas, press banca, remo, abdominales',
+      'Cardio ligero 20 min',
+      'Descanso'
+    ]
+  };
+
+  async function loadBodyMetrics(){
+    const { data, error } = await sb.from('body_metrics').select('*').eq('user_id', session.user.id).maybeSingle();
+    if(error || !data) return;
+    el('mWeight').value = data.weight_kg || '';
+    el('mHeight').value = data.height_cm || '';
+    el('mAge').value = data.age || '';
+    el('mSex').value = data.sex || 'hombre';
+    el('mActivity').value = data.activity || 'sedentario';
+    el('mGoal').value = data.goal || 'mantener';
+    computeAndShowMacros(data.weight_kg, data.height_cm, data.age, data.sex, data.activity, data.goal);
+  }
+
+  function computeAndShowMacros(weight, height, age, sex, activity, goal){
+    const bmr = sex === 'hombre'
+      ? (10*weight + 6.25*height - 5*age + 5)
+      : (10*weight + 6.25*height - 5*age - 161);
+    const tdee = bmr * (ACTIVITY_MULT[activity] || 1.2);
+    const calories = Math.round(tdee * (1 + (GOAL_ADJUST[goal] || 0)));
+
+    const proteinG = Math.round(weight * 2.0);
+    const fatG = Math.round((calories * 0.25) / 9);
+    const remaining = Math.max(calories - (proteinG*4) - (fatG*9), 0);
+    const carbsG = Math.round(remaining / 4);
+
+    el('macroCalories').textContent = calories.toLocaleString('es-ES');
+    el('macroProtein').textContent = proteinG + 'g';
+    el('macroCarbs').textContent = carbsG + 'g';
+    el('macroFat').textContent = fatG + 'g';
+    el('macroResults').classList.add('show');
+
+    renderPlanWeek(goal);
+  }
+
+  function renderPlanWeek(goal){
+    const template = PLAN_TEMPLATES[goal] || PLAN_TEMPLATES.mantener;
+    const weekEl = el('planWeek');
+    weekEl.innerHTML = '';
+    template.forEach((text, i) => {
+      const row = document.createElement('div');
+      row.className = 'plan-day';
+      row.innerHTML = `<div class="pd-num">${String(i+1).padStart(2,'0')}</div><div class="pd-text">${escapeHtml(text)}</div>`;
+      weekEl.appendChild(row);
+    });
+  }
+
+  el('macroForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const weight = parseFloat(el('mWeight').value);
+    const height = parseFloat(el('mHeight').value);
+    const age = parseInt(el('mAge').value, 10);
+    const sex = el('mSex').value;
+    const activity = el('mActivity').value;
+    const goal = el('mGoal').value;
+    if(!weight || !height || !age){ showToast('Completa peso, estatura y edad', true); return; }
+
+    computeAndShowMacros(weight, height, age, sex, activity, goal);
+
+    const { error } = await sb.from('body_metrics').upsert({
+      user_id: session.user.id, weight_kg: weight, height_cm: height, age, sex, activity, goal, updated_at: new Date().toISOString()
+    }, { onConflict:'user_id' });
+    if(error) showToast('No se pudieron guardar tus datos', true); else showToast('Macros guardados');
+  });
+
+  el('planAddBtn').addEventListener('click', async () => {
+    const goal = el('mGoal').value;
+    const template = PLAN_TEMPLATES[goal] || PLAN_TEMPLATES.mantener;
+    const btn = el('planAddBtn');
+    btn.disabled = true; btn.textContent = 'Añadiendo…';
+
+    const rows = template.map((text, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() + i + 1);
+      return { user_id: session.user.id, task_date: dateStr(d.getFullYear(), d.getMonth(), d.getDate()), text, done:false };
+    });
+
+    const { error } = await sb.from('daily_tasks').insert(rows);
+    btn.disabled = false; btn.textContent = '+ AÑADIR ESTE PLAN A MI CALENDARIO (PRÓXIMOS 7 DÍAS)';
+    if(error){ showToast('No se pudo añadir el plan', true); return; }
+    showToast('Plan añadido a tu calendario');
+    loadMonth();
+  });
 
   /* ================= INIT ================= */
 
