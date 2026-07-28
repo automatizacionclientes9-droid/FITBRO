@@ -236,10 +236,26 @@
   .macro-box.carbs .val{ color:#F5C24D; }
   .macro-box.fat .val{ color:#6FB3FF; }
 
-  .plan-week{ display:flex; flex-direction:column; gap:8px; margin-top:16px; }
-  .plan-day{ display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); padding:12px 14px; background:var(--bg-cell); }
-  .plan-day .pd-num{ font-family:var(--font-display); font-size:26px; color:var(--text-dim); flex-shrink:0; width:34px; }
-  .plan-day .pd-text{ font-size:14px; line-height:1.4; padding-top:4px; }
+  .plan-week{ display:flex; flex-direction:column; gap:20px; margin-top:16px; }
+  .plan-day-block{ border:1px solid var(--line); background:var(--bg-cell); }
+  .plan-day-head{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--line); }
+  .plan-day-head .pd-num{ font-family:var(--font-display); font-size:22px; color:var(--text-dim); flex-shrink:0; width:30px; }
+  .plan-day-head .pd-label{ font-size:13px; font-weight:600; letter-spacing:0.02em; }
+  .plan-day-head.rest{ opacity:0.6; }
+  .plan-exercise{ display:flex; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line-soft); }
+  .plan-exercise:last-child{ border-bottom:none; }
+  .plan-exercise .pe-img{
+    width:64px; height:64px; flex-shrink:0; object-fit:cover;
+    background:var(--bg-elev); border:1px solid var(--line);
+  }
+  .plan-exercise .pe-img.hidden-img{ display:none; }
+  .plan-exercise .pe-info{ flex:1; min-width:0; }
+  .plan-exercise .pe-name{ font-size:14px; font-weight:600; }
+  .plan-exercise .pe-sr{
+    font-family:var(--font-mono); font-size:11px; color:var(--accent);
+    letter-spacing:0.05em; margin-top:3px;
+  }
+  .plan-rest-text{ padding:14px; font-size:13px; color:var(--text-dim); }
   .plan-add-btn{
     width:100%; margin-top:16px; padding:16px; min-height:50px;
     background:var(--accent); color:#0B0B0C; font-weight:700;
@@ -808,33 +824,81 @@
   const ACTIVITY_MULT = { sedentario:1.2, ligero:1.375, moderado:1.55, activo:1.725, muy_activo:1.9 };
   const GOAL_ADJUST = { perder:-0.20, mantener:0, ganar:0.12 };
 
+  const EX_IMG_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+
+  const EXERCISES = {
+    sentadilla: { name:'Sentadilla con barra', gif:'Barbell_Squat/0.jpg' },
+    press_banca: { name:'Press de banca', gif:'Barbell_Bench_Press_-_Medium_Grip/0.jpg' },
+    press_inclinado: { name:'Press inclinado con barra', gif:'Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg' },
+    remo_mancuerna: { name:'Remo con mancuerna', gif:'Bent_Over_Two-Dumbbell_Row/0.jpg' },
+    remo_barra: { name:'Remo con barra', gif:'Bent_Over_Barbell_Row/0.jpg' },
+    peso_muerto: { name:'Peso muerto', gif:'Barbell_Deadlift/0.jpg' },
+    press_militar: { name:'Press militar con barra', gif:'Barbell_Shoulder_Press/0.jpg' },
+    hip_thrust: { name:'Hip thrust con barra', gif:'Barbell_Hip_Thrust/0.jpg' },
+    zancadas: { name:'Zancadas caminando', gif:'Bodyweight_Walking_Lunge/0.jpg' },
+    fondos: { name:'Fondos en banco (tríceps)', gif:'Bench_Dips/0.jpg' },
+    curl_biceps: { name:'Curl de bíceps con barra', gif:'Barbell_Curl/0.jpg' },
+    curl_martillo: { name:'Curl martillo alterno', gif:'Alternate_Hammer_Curl/0.jpg' },
+    curl_femoral: { name:'Curl femoral en balón', gif:'Ball_Leg_Curl/0.jpg' },
+    gemelos: { name:'Elevación de gemelos', gif:'Barbell_Seated_Calf_Raise/0.jpg' },
+    sentadilla_peso_corporal: { name:'Sentadilla con peso corporal', gif:'Bodyweight_Squat/0.jpg' },
+    core: { name:'Elevación de cadera (core)', gif:'Bent-Knee_Hip_Raise/0.jpg' }
+  };
+
   const PLAN_TEMPLATES = {
     perder: [
-      'Full body fuerza: sentadilla, press banca, remo con mancuerna, plancha 3x40s',
-      'Cardio 30 min ritmo moderado (bici o caminata rápida)',
-      'Full body fuerza: peso muerto, press militar, jalón al pecho, elevaciones laterales',
-      'Descanso activo: 20 min de estiramientos',
-      'Full body fuerza + HIIT 15 min al final',
-      'Cardio ligero 25 min',
-      'Descanso'
+      { label:'Full body fuerza', ex:[
+        {k:'sentadilla', sets:3, reps:'15'}, {k:'press_banca', sets:3, reps:'15'},
+        {k:'remo_mancuerna', sets:3, reps:'15'}, {k:'core', sets:3, reps:'20'}
+      ]},
+      { rest:true, text:'Cardio 30 min a ritmo moderado (bici o caminata rápida)' },
+      { label:'Full body fuerza', ex:[
+        {k:'peso_muerto', sets:3, reps:'12'}, {k:'press_militar', sets:3, reps:'12'},
+        {k:'remo_barra', sets:3, reps:'12'}
+      ]},
+      { rest:true, text:'Descanso activo: 20 min de estiramientos' },
+      { label:'Full body + HIIT final', ex:[
+        {k:'sentadilla_peso_corporal', sets:3, reps:'20'}, {k:'zancadas', sets:3, reps:'12'},
+        {k:'fondos', sets:3, reps:'12'}
+      ]},
+      { rest:true, text:'Cardio ligero 25 min' },
+      { rest:true, text:'Descanso' }
     ],
     ganar: [
-      'Empuje: press banca, press militar, fondos, extensión de tríceps',
-      'Tirón: dominadas, remo con barra, curl de bíceps, face pull',
-      'Pierna: sentadilla, peso muerto rumano, prensa, gemelos',
-      'Descanso',
-      'Empuje: press inclinado, press de hombro con mancuerna, tríceps en polea',
-      'Tirón: remo en máquina, jalón al pecho, curl martillo',
-      'Pierna: zancadas, hip thrust, curl femoral'
+      { label:'Empuje', ex:[
+        {k:'press_banca', sets:4, reps:'8'}, {k:'press_militar', sets:3, reps:'10'}, {k:'fondos', sets:3, reps:'10'}
+      ]},
+      { label:'Tirón', ex:[
+        {k:'remo_barra', sets:4, reps:'8'}, {k:'curl_biceps', sets:3, reps:'12'}, {k:'curl_martillo', sets:3, reps:'12'}
+      ]},
+      { label:'Pierna', ex:[
+        {k:'sentadilla', sets:4, reps:'8'}, {k:'peso_muerto', sets:3, reps:'10'}, {k:'gemelos', sets:4, reps:'15'}
+      ]},
+      { rest:true, text:'Descanso' },
+      { label:'Empuje', ex:[
+        {k:'press_inclinado', sets:4, reps:'8'}, {k:'press_militar', sets:3, reps:'10'}, {k:'fondos', sets:3, reps:'12'}
+      ]},
+      { label:'Tirón', ex:[
+        {k:'remo_mancuerna', sets:4, reps:'10'}, {k:'curl_biceps', sets:3, reps:'12'}
+      ]},
+      { label:'Pierna', ex:[
+        {k:'zancadas', sets:3, reps:'12'}, {k:'hip_thrust', sets:4, reps:'10'}, {k:'curl_femoral', sets:3, reps:'12'}
+      ]}
     ],
     mantener: [
-      'Full body: sentadilla, press banca, remo, plancha',
-      'Cardio moderado 25 min',
-      'Full body: peso muerto, press de hombro, jalón, core',
-      'Descanso',
-      'Full body: zancadas, press banca, remo, abdominales',
-      'Cardio ligero 20 min',
-      'Descanso'
+      { label:'Full body', ex:[
+        {k:'sentadilla', sets:3, reps:'12'}, {k:'press_banca', sets:3, reps:'12'}, {k:'remo_mancuerna', sets:3, reps:'12'}
+      ]},
+      { rest:true, text:'Cardio moderado 25 min' },
+      { label:'Full body', ex:[
+        {k:'peso_muerto', sets:3, reps:'10'}, {k:'press_militar', sets:3, reps:'12'}, {k:'core', sets:3, reps:'15'}
+      ]},
+      { rest:true, text:'Descanso' },
+      { label:'Full body', ex:[
+        {k:'zancadas', sets:3, reps:'12'}, {k:'press_banca', sets:3, reps:'12'}, {k:'remo_barra', sets:3, reps:'12'}
+      ]},
+      { rest:true, text:'Cardio ligero 20 min' },
+      { rest:true, text:'Descanso' }
     ]
   };
 
@@ -875,11 +939,32 @@
     const template = PLAN_TEMPLATES[goal] || PLAN_TEMPLATES.mantener;
     const weekEl = el('planWeek');
     weekEl.innerHTML = '';
-    template.forEach((text, i) => {
-      const row = document.createElement('div');
-      row.className = 'plan-day';
-      row.innerHTML = `<div class="pd-num">${String(i+1).padStart(2,'0')}</div><div class="pd-text">${escapeHtml(text)}</div>`;
-      weekEl.appendChild(row);
+    template.forEach((day, i) => {
+      const block = document.createElement('div');
+      block.className = 'plan-day-block';
+      if(day.rest){
+        block.innerHTML = `
+          <div class="plan-day-head rest"><div class="pd-num">${String(i+1).padStart(2,'0')}</div><div class="pd-label">${escapeHtml(day.text)}</div></div>
+        `;
+      } else {
+        const exRows = day.ex.map(item => {
+          const info = EXERCISES[item.k];
+          const imgUrl = EX_IMG_BASE + info.gif;
+          return `
+            <div class="plan-exercise">
+              <img class="pe-img" src="${imgUrl}" alt="${escapeHtml(info.name)}" onerror="this.classList.add('hidden-img')">
+              <div class="pe-info">
+                <div class="pe-name">${escapeHtml(info.name)}</div>
+                <div class="pe-sr">${item.sets} series × ${item.reps} repeticiones</div>
+              </div>
+            </div>`;
+        }).join('');
+        block.innerHTML = `
+          <div class="plan-day-head"><div class="pd-num">${String(i+1).padStart(2,'0')}</div><div class="pd-label">${escapeHtml(day.label)}</div></div>
+          ${exRows}
+        `;
+      }
+      weekEl.appendChild(block);
     });
   }
 
@@ -907,10 +992,19 @@
     const btn = el('planAddBtn');
     btn.disabled = true; btn.textContent = 'Añadiendo…';
 
-    const rows = template.map((text, i) => {
+    const rows = [];
+    template.forEach((day, i) => {
       const d = new Date();
       d.setDate(d.getDate() + i + 1);
-      return { user_id: session.user.id, task_date: dateStr(d.getFullYear(), d.getMonth(), d.getDate()), text, done:false };
+      const task_date = dateStr(d.getFullYear(), d.getMonth(), d.getDate());
+      if(day.rest){
+        rows.push({ user_id: session.user.id, task_date, text: day.text, done:false });
+      } else {
+        day.ex.forEach(item => {
+          const info = EXERCISES[item.k];
+          rows.push({ user_id: session.user.id, task_date, text: `${info.name} — ${item.sets}x${item.reps}`, done:false });
+        });
+      }
     });
 
     const { error } = await sb.from('daily_tasks').insert(rows);
