@@ -266,7 +266,29 @@
   .plan-add-btn:active{ transform:scale(0.98); }
   .plan-add-btn:disabled{ opacity:0.5; }
 
+  /* ---------- TABS ---------- */
+  .tabbar{
+    position:sticky; top:57px; z-index:4;
+    display:flex; gap:0;
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+    margin:0 -20px 26px;
+    padding:0 20px;
+  }
+  .tab-btn{
+    flex:1; padding:14px 10px; text-align:center;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--text-faint); border-bottom:2px solid transparent;
+    transition:color .15s, border-color .15s;
+  }
+  .tab-btn:hover{ color:var(--text-dim); }
+  .tab-btn.active{ color:var(--text); border-color:var(--accent); }
+  .view{ display:block; }
+  .view.hidden-view{ display:none; }
+
   @media (max-width:520px){
+    .tabbar{ top:53px; margin:0 -14px 22px; padding:0 14px; }
+    .tab-btn{ font-size:10px; padding:12px 4px; }
     .wrap{ padding:22px 14px 100px; }
     .topbar{ padding:12px 14px; }
     .cell{ padding:6px; }
@@ -355,91 +377,117 @@
 
   <div class="wrap">
 
-    <div class="eyebrow"><span class="dot"></span> PLANIFICADOR DE ENTRENAMIENTO</div>
+    <div class="tabbar" id="tabbar">
+      <button class="tab-btn active" data-view="calendario">Calendario</button>
+      <button class="tab-btn" data-view="objetivos">Objetivos</button>
+      <button class="tab-btn" data-view="plan">Macros y plan</button>
+    </div>
 
-    <div class="month-row">
-      <div class="month-title"><span id="monthName">JULIO</span> <span class="year" id="yearName">2026</span></div>
-      <div class="month-nav">
-        <button id="prevBtn" aria-label="Mes anterior">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <button id="todayBtn" class="today-btn">HOY</button>
-        <button id="nextBtn" aria-label="Mes siguiente">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+    <!-- ===== VISTA: CALENDARIO ===== -->
+    <div class="view" id="view-calendario">
+      <div class="eyebrow"><span class="dot"></span> PLANIFICADOR DE ENTRENAMIENTO</div>
+
+      <div class="month-row">
+        <div class="month-title"><span id="monthName">JULIO</span> <span class="year" id="yearName">2026</span></div>
+        <div class="month-nav">
+          <button id="prevBtn" aria-label="Mes anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button id="todayBtn" class="today-btn">HOY</button>
+          <button id="nextBtn" aria-label="Mes siguiente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-label">Calendario · tareas del mes <span class="count" id="tasksCount">0/0</span></div>
+      <div class="progress-track"><div class="progress-fill" id="tasksProgress"></div></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-chip"></div> Sin plan</div>
+        <div class="legend-item"><div class="legend-chip" style="background:var(--accent-l2)"></div> Planificado</div>
+        <div class="legend-item"><div class="legend-chip" style="background:var(--accent-l4)"></div> Completado</div>
+      </div>
+
+      <div class="weekdays"><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div></div>
+      <div class="grid" id="calendarGrid"></div>
+
+      <div class="stats">
+        <div class="stat"><div class="val" id="statDays">0</div><div class="lbl">Días con actividad</div></div>
+        <div class="stat"><div class="val" id="statDone">0</div><div class="lbl">Tareas completadas</div></div>
+        <div class="stat"><div class="val" id="statPending">0</div><div class="lbl">Tareas pendientes</div></div>
+        <div class="stat"><div class="val" id="statPct">0%</div><div class="lbl">Cumplimiento del mes</div></div>
+      </div>
+
+      <footer>FITBRO — planificador mensual. toca un día para gestionar sus tareas.</footer>
+    </div>
+
+    <!-- ===== VISTA: OBJETIVOS ===== -->
+    <div class="view hidden-view" id="view-objetivos">
+      <div class="eyebrow"><span class="dot"></span> TUS METAS</div>
+      <div class="section-label">Objetivos principales <span class="count" id="goalsCount">0/0</span></div>
+      <div class="progress-track"><div class="progress-fill" id="goalsProgress"></div></div>
+      <div class="goals" id="goalsList"></div>
+      <div class="add-goal"><button id="addGoalBtn">+ AÑADIR OBJETIVO</button></div>
+    </div>
+
+    <!-- ===== VISTA: MACROS Y PLAN ===== -->
+    <div class="view hidden-view" id="view-plan">
+      <div class="eyebrow"><span class="dot"></span> NUTRICIÓN Y ENTRENAMIENTO</div>
+      <div class="section-label">Tus macros</div>
+      <form class="macro-form" id="macroForm">
+        <div class="macro-field"><label>Peso (kg)</label><input type="number" id="mWeight" min="30" max="300" step="0.1" required></div>
+        <div class="macro-field"><label>Estatura (cm)</label><input type="number" id="mHeight" min="100" max="250" step="0.1" required></div>
+        <div class="macro-field"><label>Edad</label><input type="number" id="mAge" min="10" max="100" required></div>
+        <div class="macro-field">
+          <label>Sexo</label>
+          <select id="mSex" required>
+            <option value="hombre">Hombre</option>
+            <option value="mujer">Mujer</option>
+          </select>
+        </div>
+        <div class="macro-field full">
+          <label>Nivel de actividad</label>
+          <select id="mActivity" required>
+            <option value="sedentario">Sedentario (poco o nada de ejercicio)</option>
+            <option value="ligero">Ligero (1-3 días/semana)</option>
+            <option value="moderado">Moderado (3-5 días/semana)</option>
+            <option value="activo">Activo (6-7 días/semana)</option>
+            <option value="muy_activo">Muy activo (entreno intenso a diario)</option>
+          </select>
+        </div>
+        <div class="macro-field full">
+          <label>Tu objetivo</label>
+          <select id="mGoal" required>
+            <option value="perder">Perder peso / grasa</option>
+            <option value="mantener">Mantener / tonificar</option>
+            <option value="ganar">Ganar músculo</option>
+          </select>
+        </div>
+        <div class="macro-field full">
+          <label>¿Dónde entrenas?</label>
+          <select id="mEquipment" required>
+            <option value="gimnasio">Gimnasio completo (barras, máquinas)</option>
+            <option value="casa">En casa con mancuernas o bandas</option>
+            <option value="sin_equipo">Sin ningún equipo, solo mi cuerpo</option>
+          </select>
+        </div>
+        <button type="submit" class="macro-submit">Calcular y guardar</button>
+      </form>
+
+      <div class="macro-results" id="macroResults">
+        <div class="macro-cal"><div class="val" id="macroCalories">0</div><div class="lbl">Calorías objetivo / día</div></div>
+        <div class="macro-grid">
+          <div class="macro-box protein"><div class="val" id="macroProtein">0g</div><div class="lbl">Proteína</div></div>
+          <div class="macro-box carbs"><div class="val" id="macroCarbs">0g</div><div class="lbl">Carbohidratos</div></div>
+          <div class="macro-box fat"><div class="val" id="macroFat">0g</div><div class="lbl">Grasas</div></div>
+        </div>
+
+        <div class="section-label" style="margin-top:34px;">Plan de entrenamiento sugerido</div>
+        <div class="plan-week" id="planWeek"></div>
+        <button class="plan-add-btn" id="planAddBtn">+ AÑADIR ESTE PLAN A MI CALENDARIO (PRÓXIMOS 7 DÍAS)</button>
       </div>
     </div>
 
-    <div class="section-label">Objetivos principales <span class="count" id="goalsCount">0/0</span></div>
-    <div class="progress-track"><div class="progress-fill" id="goalsProgress"></div></div>
-    <div class="goals" id="goalsList"></div>
-    <div class="add-goal"><button id="addGoalBtn">+ AÑADIR OBJETIVO</button></div>
-
-    <div class="section-label">Tus macros</div>
-    <form class="macro-form" id="macroForm">
-      <div class="macro-field"><label>Peso (kg)</label><input type="number" id="mWeight" min="30" max="300" step="0.1" required></div>
-      <div class="macro-field"><label>Estatura (cm)</label><input type="number" id="mHeight" min="100" max="250" step="0.1" required></div>
-      <div class="macro-field"><label>Edad</label><input type="number" id="mAge" min="10" max="100" required></div>
-      <div class="macro-field">
-        <label>Sexo</label>
-        <select id="mSex" required>
-          <option value="hombre">Hombre</option>
-          <option value="mujer">Mujer</option>
-        </select>
-      </div>
-      <div class="macro-field full">
-        <label>Nivel de actividad</label>
-        <select id="mActivity" required>
-          <option value="sedentario">Sedentario (poco o nada de ejercicio)</option>
-          <option value="ligero">Ligero (1-3 días/semana)</option>
-          <option value="moderado">Moderado (3-5 días/semana)</option>
-          <option value="activo">Activo (6-7 días/semana)</option>
-          <option value="muy_activo">Muy activo (entreno intenso a diario)</option>
-        </select>
-      </div>
-      <div class="macro-field full">
-        <label>Tu objetivo</label>
-        <select id="mGoal" required>
-          <option value="perder">Perder peso / grasa</option>
-          <option value="mantener">Mantener / tonificar</option>
-          <option value="ganar">Ganar músculo</option>
-        </select>
-      </div>
-      <button type="submit" class="macro-submit">Calcular y guardar</button>
-    </form>
-
-    <div class="macro-results" id="macroResults">
-      <div class="macro-cal"><div class="val" id="macroCalories">0</div><div class="lbl">Calorías objetivo / día</div></div>
-      <div class="macro-grid">
-        <div class="macro-box protein"><div class="val" id="macroProtein">0g</div><div class="lbl">Proteína</div></div>
-        <div class="macro-box carbs"><div class="val" id="macroCarbs">0g</div><div class="lbl">Carbohidratos</div></div>
-        <div class="macro-box fat"><div class="val" id="macroFat">0g</div><div class="lbl">Grasas</div></div>
-      </div>
-
-      <div class="section-label" style="margin-top:34px;">Plan de entrenamiento sugerido</div>
-      <div class="plan-week" id="planWeek"></div>
-      <button class="plan-add-btn" id="planAddBtn">+ AÑADIR ESTE PLAN A MI CALENDARIO (PRÓXIMOS 7 DÍAS)</button>
-    </div>
-
-    <div class="section-label">Calendario · tareas del mes <span class="count" id="tasksCount">0/0</span></div>
-    <div class="progress-track"><div class="progress-fill" id="tasksProgress"></div></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-chip"></div> Sin plan</div>
-      <div class="legend-item"><div class="legend-chip" style="background:var(--accent-l2)"></div> Planificado</div>
-      <div class="legend-item"><div class="legend-chip" style="background:var(--accent-l4)"></div> Completado</div>
-    </div>
-
-    <div class="weekdays"><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div></div>
-    <div class="grid" id="calendarGrid"></div>
-
-    <div class="stats">
-      <div class="stat"><div class="val" id="statDays">0</div><div class="lbl">Días con actividad</div></div>
-      <div class="stat"><div class="val" id="statDone">0</div><div class="lbl">Tareas completadas</div></div>
-      <div class="stat"><div class="val" id="statPending">0</div><div class="lbl">Tareas pendientes</div></div>
-      <div class="stat"><div class="val" id="statPct">0%</div><div class="lbl">Cumplimiento del mes</div></div>
-    </div>
-
-    <footer>FITBRO — planificador mensual. toca un día para gestionar sus tareas.</footer>
   </div>
 </div>
 
@@ -506,6 +554,18 @@
     if(msg.includes('rate limit')) return 'Demasiados intentos. Espera un momento.';
     return msg;
   }
+
+  /* ================= TABS ================= */
+
+  function switchView(name){
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden-view'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    el('view-' + name).classList.remove('hidden-view');
+    document.querySelector(`.tab-btn[data-view="${name}"]`).classList.add('active');
+  }
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+  });
 
   /* ================= AUTH ================= */
 
@@ -826,76 +886,140 @@
 
   const EX_IMG_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 
-  const EXERCISES = {
-    sentadilla: { name:'Sentadilla con barra', gif:'Barbell_Squat/0.jpg' },
-    press_banca: { name:'Press de banca', gif:'Barbell_Bench_Press_-_Medium_Grip/0.jpg' },
-    press_inclinado: { name:'Press inclinado con barra', gif:'Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg' },
-    remo_mancuerna: { name:'Remo con mancuerna', gif:'Bent_Over_Two-Dumbbell_Row/0.jpg' },
-    remo_barra: { name:'Remo con barra', gif:'Bent_Over_Barbell_Row/0.jpg' },
-    peso_muerto: { name:'Peso muerto', gif:'Barbell_Deadlift/0.jpg' },
-    press_militar: { name:'Press militar con barra', gif:'Barbell_Shoulder_Press/0.jpg' },
-    hip_thrust: { name:'Hip thrust con barra', gif:'Barbell_Hip_Thrust/0.jpg' },
-    zancadas: { name:'Zancadas caminando', gif:'Bodyweight_Walking_Lunge/0.jpg' },
-    fondos: { name:'Fondos en banco (tríceps)', gif:'Bench_Dips/0.jpg' },
-    curl_biceps: { name:'Curl de bíceps con barra', gif:'Barbell_Curl/0.jpg' },
-    curl_martillo: { name:'Curl martillo alterno', gif:'Alternate_Hammer_Curl/0.jpg' },
-    curl_femoral: { name:'Curl femoral en balón', gif:'Ball_Leg_Curl/0.jpg' },
-    gemelos: { name:'Elevación de gemelos', gif:'Barbell_Seated_Calf_Raise/0.jpg' },
-    sentadilla_peso_corporal: { name:'Sentadilla con peso corporal', gif:'Bodyweight_Squat/0.jpg' },
-    core: { name:'Elevación de cadera (core)', gif:'Bent-Knee_Hip_Raise/0.jpg' }
+  // Cada patrón de movimiento tiene una variante según el equipamiento disponible.
+  const SLOTS = {
+    squat: {
+      gimnasio: { name:'Sentadilla con barra', gif:'Barbell_Squat/0.jpg' },
+      casa: { name:'Sentadilla goblet (mancuerna o mochila con peso)', gif:'Bodyweight_Squat/0.jpg' },
+      sin_equipo: { name:'Sentadilla con peso corporal', gif:'Bodyweight_Squat/0.jpg' }
+    },
+    push_horizontal: {
+      gimnasio: { name:'Press de banca con barra', gif:'Barbell_Bench_Press_-_Medium_Grip/0.jpg' },
+      casa: { name:'Flexiones de brazos', gif:'Pushups/0.jpg' },
+      sin_equipo: { name:'Flexiones de brazos', gif:'Pushups/0.jpg' }
+    },
+    push_incline: {
+      gimnasio: { name:'Press inclinado con barra', gif:'Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg' },
+      casa: { name:'Flexiones con pies elevados', gif:'Pushups/0.jpg' },
+      sin_equipo: { name:'Flexiones con pies elevados', gif:'Pushups/0.jpg' }
+    },
+    push_vertical: {
+      gimnasio: { name:'Press militar con barra', gif:'Barbell_Shoulder_Press/0.jpg' },
+      casa: { name:'Press pike (flexión en V)', gif:'Pushups/0.jpg' },
+      sin_equipo: { name:'Press pike (flexión en V)', gif:'Pushups/0.jpg' }
+    },
+    row: {
+      gimnasio: { name:'Remo con barra', gif:'Bent_Over_Barbell_Row/0.jpg' },
+      casa: { name:'Remo con mancuerna', gif:'Bent_Over_Two-Dumbbell_Row/0.jpg' },
+      sin_equipo: { name:'Remo invertido bajo una mesa', gif:'Bodyweight_Mid_Row/0.jpg' }
+    },
+    pull_vertical: {
+      gimnasio: { name:'Dominadas', gif:'Pullups/0.jpg' },
+      casa: { name:'Remo invertido con toalla en una puerta', gif:'Bodyweight_Mid_Row/0.jpg' },
+      sin_equipo: { name:'Remo invertido bajo una mesa', gif:'Bodyweight_Mid_Row/0.jpg' }
+    },
+    hinge: {
+      gimnasio: { name:'Peso muerto con barra', gif:'Barbell_Deadlift/0.jpg' },
+      casa: { name:'Peso muerto con mancuernas', gif:'Barbell_Deadlift/0.jpg' },
+      sin_equipo: { name:'Buenos días con banda elástica', gif:'Band_Good_Morning/0.jpg' }
+    },
+    hip: {
+      gimnasio: { name:'Hip thrust con barra', gif:'Barbell_Hip_Thrust/0.jpg' },
+      casa: { name:'Puente de glúteos con peso', gif:'Barbell_Glute_Bridge/0.jpg' },
+      sin_equipo: { name:'Puente de glúteos con peso corporal', gif:'Barbell_Glute_Bridge/0.jpg' }
+    },
+    lunge: {
+      gimnasio: { name:'Zancadas con barra', gif:'Barbell_Lunge/0.jpg' },
+      casa: { name:'Zancadas caminando con mancuernas', gif:'Bodyweight_Walking_Lunge/0.jpg' },
+      sin_equipo: { name:'Zancadas caminando', gif:'Bodyweight_Walking_Lunge/0.jpg' }
+    },
+    triceps: {
+      gimnasio: { name:'Fondos en banco / paralelas', gif:'Bench_Dips/0.jpg' },
+      casa: { name:'Fondos en silla o banco', gif:'Bench_Dips/0.jpg' },
+      sin_equipo: { name:'Flexiones con agarre cerrado', gif:'Pushups/0.jpg' }
+    },
+    biceps: {
+      gimnasio: { name:'Curl de bíceps con barra', gif:'Barbell_Curl/0.jpg' },
+      casa: { name:'Curl martillo con mancuerna', gif:'Alternate_Hammer_Curl/0.jpg' },
+      sin_equipo: { name:'Curl con banda elástica', gif:'Band_Pull_Apart/0.jpg' }
+    },
+    hamstring_curl: {
+      gimnasio: { name:'Curl femoral en máquina', gif:'Ball_Leg_Curl/0.jpg' },
+      casa: { name:'Curl femoral con balón', gif:'Ball_Leg_Curl/0.jpg' },
+      sin_equipo: { name:'Curl femoral nórdico asistido', gif:'Ball_Leg_Curl/0.jpg' }
+    },
+    calf: {
+      gimnasio: { name:'Elevación de gemelos con barra', gif:'Barbell_Seated_Calf_Raise/0.jpg' },
+      casa: { name:'Elevación de gemelos de pie', gif:'Barbell_Seated_Calf_Raise/0.jpg' },
+      sin_equipo: { name:'Elevación de gemelos a una pierna', gif:'Barbell_Seated_Calf_Raise/0.jpg' }
+    },
+    core: {
+      gimnasio: { name:'Elevación de cadera (core)', gif:'Bent-Knee_Hip_Raise/0.jpg' },
+      casa: { name:'Bicicleta en el suelo', gif:'Air_Bike/0.jpg' },
+      sin_equipo: { name:'Sit-up 3/4', gif:'3_4_Sit-Up/0.jpg' }
+    },
+    plank: {
+      gimnasio: { name:'Plancha frontal', gif:'Plank/0.jpg' },
+      casa: { name:'Plancha frontal', gif:'Plank/0.jpg' },
+      sin_equipo: { name:'Plancha frontal', gif:'Plank/0.jpg' }
+    }
   };
+
+  function getExercise(slotKey, equipment){
+    const slot = SLOTS[slotKey];
+    return slot[equipment] || slot.sin_equipo;
+  }
 
   const PLAN_TEMPLATES = {
     perder: [
       { label:'Full body fuerza', ex:[
-        {k:'sentadilla', sets:3, reps:'15'}, {k:'press_banca', sets:3, reps:'15'},
-        {k:'remo_mancuerna', sets:3, reps:'15'}, {k:'core', sets:3, reps:'20'}
+        {k:'squat', sets:3, reps:'15'}, {k:'push_horizontal', sets:3, reps:'15'},
+        {k:'row', sets:3, reps:'15'}, {k:'core', sets:3, reps:'20'}
       ]},
       { rest:true, text:'Cardio 30 min a ritmo moderado (bici o caminata rápida)' },
       { label:'Full body fuerza', ex:[
-        {k:'peso_muerto', sets:3, reps:'12'}, {k:'press_militar', sets:3, reps:'12'},
-        {k:'remo_barra', sets:3, reps:'12'}
+        {k:'hinge', sets:3, reps:'12'}, {k:'push_vertical', sets:3, reps:'12'},
+        {k:'pull_vertical', sets:3, reps:'12'}, {k:'plank', sets:3, reps:'40 seg'}
       ]},
       { rest:true, text:'Descanso activo: 20 min de estiramientos' },
       { label:'Full body + HIIT final', ex:[
-        {k:'sentadilla_peso_corporal', sets:3, reps:'20'}, {k:'zancadas', sets:3, reps:'12'},
-        {k:'fondos', sets:3, reps:'12'}
+        {k:'squat', sets:3, reps:'20'}, {k:'lunge', sets:3, reps:'12'}, {k:'triceps', sets:3, reps:'12'}
       ]},
       { rest:true, text:'Cardio ligero 25 min' },
       { rest:true, text:'Descanso' }
     ],
     ganar: [
       { label:'Empuje', ex:[
-        {k:'press_banca', sets:4, reps:'8'}, {k:'press_militar', sets:3, reps:'10'}, {k:'fondos', sets:3, reps:'10'}
+        {k:'push_horizontal', sets:4, reps:'8'}, {k:'push_vertical', sets:3, reps:'10'}, {k:'triceps', sets:3, reps:'10'}
       ]},
       { label:'Tirón', ex:[
-        {k:'remo_barra', sets:4, reps:'8'}, {k:'curl_biceps', sets:3, reps:'12'}, {k:'curl_martillo', sets:3, reps:'12'}
+        {k:'row', sets:4, reps:'8'}, {k:'pull_vertical', sets:3, reps:'8'}, {k:'biceps', sets:3, reps:'12'}
       ]},
       { label:'Pierna', ex:[
-        {k:'sentadilla', sets:4, reps:'8'}, {k:'peso_muerto', sets:3, reps:'10'}, {k:'gemelos', sets:4, reps:'15'}
+        {k:'squat', sets:4, reps:'8'}, {k:'hinge', sets:3, reps:'10'}, {k:'calf', sets:4, reps:'15'}
       ]},
       { rest:true, text:'Descanso' },
       { label:'Empuje', ex:[
-        {k:'press_inclinado', sets:4, reps:'8'}, {k:'press_militar', sets:3, reps:'10'}, {k:'fondos', sets:3, reps:'12'}
+        {k:'push_incline', sets:4, reps:'8'}, {k:'push_vertical', sets:3, reps:'10'}, {k:'triceps', sets:3, reps:'12'}
       ]},
       { label:'Tirón', ex:[
-        {k:'remo_mancuerna', sets:4, reps:'10'}, {k:'curl_biceps', sets:3, reps:'12'}
+        {k:'row', sets:4, reps:'10'}, {k:'biceps', sets:3, reps:'12'}
       ]},
       { label:'Pierna', ex:[
-        {k:'zancadas', sets:3, reps:'12'}, {k:'hip_thrust', sets:4, reps:'10'}, {k:'curl_femoral', sets:3, reps:'12'}
+        {k:'lunge', sets:3, reps:'12'}, {k:'hip', sets:4, reps:'10'}, {k:'hamstring_curl', sets:3, reps:'12'}
       ]}
     ],
     mantener: [
       { label:'Full body', ex:[
-        {k:'sentadilla', sets:3, reps:'12'}, {k:'press_banca', sets:3, reps:'12'}, {k:'remo_mancuerna', sets:3, reps:'12'}
+        {k:'squat', sets:3, reps:'12'}, {k:'push_horizontal', sets:3, reps:'12'}, {k:'row', sets:3, reps:'12'}
       ]},
       { rest:true, text:'Cardio moderado 25 min' },
       { label:'Full body', ex:[
-        {k:'peso_muerto', sets:3, reps:'10'}, {k:'press_militar', sets:3, reps:'12'}, {k:'core', sets:3, reps:'15'}
+        {k:'hinge', sets:3, reps:'10'}, {k:'push_vertical', sets:3, reps:'12'}, {k:'core', sets:3, reps:'15'}
       ]},
       { rest:true, text:'Descanso' },
       { label:'Full body', ex:[
-        {k:'zancadas', sets:3, reps:'12'}, {k:'press_banca', sets:3, reps:'12'}, {k:'remo_barra', sets:3, reps:'12'}
+        {k:'lunge', sets:3, reps:'12'}, {k:'push_horizontal', sets:3, reps:'12'}, {k:'row', sets:3, reps:'12'}
       ]},
       { rest:true, text:'Cardio ligero 20 min' },
       { rest:true, text:'Descanso' }
@@ -911,10 +1035,11 @@
     el('mSex').value = data.sex || 'hombre';
     el('mActivity').value = data.activity || 'sedentario';
     el('mGoal').value = data.goal || 'mantener';
-    computeAndShowMacros(data.weight_kg, data.height_cm, data.age, data.sex, data.activity, data.goal);
+    el('mEquipment').value = data.equipment || 'gimnasio';
+    computeAndShowMacros(data.weight_kg, data.height_cm, data.age, data.sex, data.activity, data.goal, data.equipment || 'gimnasio');
   }
 
-  function computeAndShowMacros(weight, height, age, sex, activity, goal){
+  function computeAndShowMacros(weight, height, age, sex, activity, goal, equipment){
     const bmr = sex === 'hombre'
       ? (10*weight + 6.25*height - 5*age + 5)
       : (10*weight + 6.25*height - 5*age - 161);
@@ -932,10 +1057,10 @@
     el('macroFat').textContent = fatG + 'g';
     el('macroResults').classList.add('show');
 
-    renderPlanWeek(goal);
+    renderPlanWeek(goal, equipment);
   }
 
-  function renderPlanWeek(goal){
+  function renderPlanWeek(goal, equipment){
     const template = PLAN_TEMPLATES[goal] || PLAN_TEMPLATES.mantener;
     const weekEl = el('planWeek');
     weekEl.innerHTML = '';
@@ -948,7 +1073,7 @@
         `;
       } else {
         const exRows = day.ex.map(item => {
-          const info = EXERCISES[item.k];
+          const info = getExercise(item.k, equipment);
           const imgUrl = EX_IMG_BASE + info.gif;
           return `
             <div class="plan-exercise">
@@ -976,18 +1101,20 @@
     const sex = el('mSex').value;
     const activity = el('mActivity').value;
     const goal = el('mGoal').value;
+    const equipment = el('mEquipment').value;
     if(!weight || !height || !age){ showToast('Completa peso, estatura y edad', true); return; }
 
-    computeAndShowMacros(weight, height, age, sex, activity, goal);
+    computeAndShowMacros(weight, height, age, sex, activity, goal, equipment);
 
     const { error } = await sb.from('body_metrics').upsert({
-      user_id: session.user.id, weight_kg: weight, height_cm: height, age, sex, activity, goal, updated_at: new Date().toISOString()
+      user_id: session.user.id, weight_kg: weight, height_cm: height, age, sex, activity, goal, equipment, updated_at: new Date().toISOString()
     }, { onConflict:'user_id' });
     if(error) showToast('No se pudieron guardar tus datos', true); else showToast('Macros guardados');
   });
 
   el('planAddBtn').addEventListener('click', async () => {
     const goal = el('mGoal').value;
+    const equipment = el('mEquipment').value;
     const template = PLAN_TEMPLATES[goal] || PLAN_TEMPLATES.mantener;
     const btn = el('planAddBtn');
     btn.disabled = true; btn.textContent = 'Añadiendo…';
@@ -1001,7 +1128,7 @@
         rows.push({ user_id: session.user.id, task_date, text: day.text, done:false });
       } else {
         day.ex.forEach(item => {
-          const info = EXERCISES[item.k];
+          const info = getExercise(item.k, equipment);
           rows.push({ user_id: session.user.id, task_date, text: `${info.name} — ${item.sets}x${item.reps}`, done:false });
         });
       }
